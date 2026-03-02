@@ -50,7 +50,7 @@ button:hover {
 
 <div id="gameScreen" class="container hidden">
     <h2 id="welcome"></h2>
-    <button onclick="addPoint()">🔥 Support our school!</button>
+    <button onclick="addPoint()">Support our school!</button>
     <h3>Current School Score: <span id="myScore">0</span></h3>
     <button onclick="logout()">Log out</button>
 </div>
@@ -61,81 +61,95 @@ button:hover {
 </div>
 
 <script>
-    let currentSchool = null;
+let currentSchool = null;
 
-    const schoolNames = {
-        cb: "chaffey-burke",
-        m: "Marlborough Elementary School",
-        ei: "École Inman Elementary School",
-        gdb: "Graham D. Bruce Elementary School"
-    };
+const schoolNames = {
+    cb: "chaffey-burke",
+    m: "Marlborough Elementary School",
+    ei: "École Inman Elementary School",
+    gdb: "Graham D. Bruce Elementary School"
+};
 
-    // 점수 초기화
-    if (!localStorage.getItem("scores")) {
-        localStorage.setItem("scores", JSON.stringify({
-            uoft: 0,
-            ubc: 0,
-            mcgill: 0,
-            ualberta: 0
-        }));
+if (!localStorage.getItem("scores")) {
+    localStorage.setItem("scores", JSON.stringify({
+        cb: 0,
+        m: 0,
+        ei: 0,
+        gdb: 0
+    }));
+}
+
+function getScores() {
+    return JSON.parse(localStorage.getItem("scores"));
+}
+
+function saveScores(scores) {
+    localStorage.setItem("scores", JSON.stringify(scores));
+}
+
+function login(school) {
+    currentSchool = school;
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("gameScreen").classList.remove("hidden");
+    document.getElementById("welcome").innerText = schoolNames[school];
+    updateMyScore();
+}
+
+function logout() {
+    currentSchool = null;
+    document.getElementById("loginScreen").classList.remove("hidden");
+    document.getElementById("gameScreen").classList.add("hidden");
+}
+
+function getOrdinal(num) {
+    if (num % 100 >= 11 && num % 100 <= 13) {
+        return num + "th";
     }
-
-    function getScores() {
-        return JSON.parse(localStorage.getItem("scores"));
+    switch (num % 10) {
+        case 1: return num + "st";
+        case 2: return num + "nd";
+        case 3: return num + "rd";
+        default: return num + "th";
     }
+}
 
-    function saveScores(scores) {
-        localStorage.setItem("scores", JSON.stringify(scores));
-    }
+function addPoint() {
+    if (!currentSchool) return;
 
-    function login(school) {
-        currentSchool = school;
-        document.getElementById("loginScreen").classList.add("hidden");
-        document.getElementById("gameScreen").classList.remove("hidden");
-        document.getElementById("welcome").innerText =
-            schoolNames[school];
-        updateMyScore();
-    }
-
-    function logout() {
-        currentSchool = null;
-        document.getElementById("loginScreen").classList.remove("hidden");
-        document.getElementById("gameScreen").classList.add("hidden");
-    }
-
-    function addPoint() {
-        let scores = getScores();
-        scores[currentSchool]++;
-        saveScores(scores);
-        updateMyScore();
-        updateRanking();
-    }
-
-    function updateMyScore() {
-        let scores = getScores();
-        document.getElementById("myScore").innerText = scores[currentSchool];
-    }
-
-    function updateRanking() {
-        let scores = getScores();
-        let rankingDiv = document.getElementById("ranking");
-        rankingDiv.innerHTML = "";
-
-        let sorted = Object.entries(scores)
-            .sort((a, b) => b[1] - a[1]);
-
-        sorted.forEach((item, index) => {
-            let div = document.createElement("div");
-            div.className = "rank";
-            div.innerText =
-                getOrdinal(index + 1) + " - " +
-                schoolNames[item[0]] +
-                " : " + item[1] + " points";
-            rankingDiv.appendChild(div);
-        });
-    }
-
+    let scores = getScores();
+    scores[currentSchool]++;
+    saveScores(scores);
+    updateMyScore();
     updateRanking();
+}
+
+function updateMyScore() {
+    if (!currentSchool) return;
+
+    let scores = getScores();
+    document.getElementById("myScore").innerText = scores[currentSchool];
+}
+
+function updateRanking() {
+    let scores = getScores();
+    let rankingDiv = document.getElementById("ranking");
+    rankingDiv.innerHTML = "";
+
+    let sorted = Object.entries(scores)
+        .sort((a, b) => b[1] - a[1]);
+
+    sorted.forEach((item, index) => {
+        let div = document.createElement("div");
+        div.className = "rank";
+        div.innerText =
+            getOrdinal(index + 1) + " - " +
+            schoolNames[item[0]] +
+            " : " + item[1] + " points";
+        rankingDiv.appendChild(div);
+    });
+}
+
+updateRanking();
 </script>
 
 </body>
