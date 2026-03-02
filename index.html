@@ -127,27 +127,10 @@ button:hover {
         sorted.forEach((item, index) => {
             let div = document.createElement("div");
             div.className = "rank";
-            if (index+1 == 1){
-                div.innerText =
-                    (index + 1) + "st - " +
-                    schoolNames[item[0]] +
-                    " : " + item[1] + "points";
-            } elif (index+1==2);{
-                div.innerText =
-                    (index + 1) + "nd - " +
-                    schoolNames[item[0]] +
-                    " : " + item[1] + "points";
-            } elif (index+1==3);{
-                div.innerText =
-                    (index + 1) + "rd - " +
-                    schoolNames[item[0]] +
-                    " : " + item[1] + "points";
-            } elif (index>3); {
-                div.innerText =
-                    (index + 1) + "th - " +
-                    schoolNames[item[0]] +
-                    " : " + item[1] + "points";
-            }
+            div.innerText =
+                getOrdinal(index + 1) + " - " +
+                schoolNames[item[0]] +
+                " : " + item[1] + " points";
             rankingDiv.appendChild(div);
         });
     }
