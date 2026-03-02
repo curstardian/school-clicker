@@ -1,1 +1,142 @@
-<!DOCTYPE
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>캐나다 학교 대항전</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: linear-gradient(to right, #ff0000, #ffffff);
+    margin: 0;
+    padding: 0;
+}
+.container {
+    margin-top: 50px;
+}
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    background: #d32f2f;
+    color: white;
+}
+button:hover {
+    background: #b71c1c;
+}
+.hidden {
+    display: none;
+}
+.rank {
+    font-size: 18px;
+    margin: 5px;
+}
+</style>
+</head>
+<body>
+
+<h1>🇨🇦 캐나다 학교 대항전 🇨🇦</h1>
+
+<div id="loginScreen" class="container">
+    <h2>학교 선택 로그인</h2>
+    <button onclick="login('uoft')">University of Toronto</button>
+    <button onclick="login('ubc')">University of British Columbia</button>
+    <button onclick="login('mcgill')">McGill University</button>
+    <button onclick="login('ualberta')">University of Alberta</button>
+</div>
+
+<div id="gameScreen" class="container hidden">
+    <h2 id="welcome"></h2>
+    <button onclick="addPoint()">🔥 우리 학교 응원하기!</button>
+    <h3>현재 학교 점수: <span id="myScore">0</span></h3>
+    <button onclick="logout()">로그아웃</button>
+</div>
+
+<div id="dashboard" class="container">
+    <h2>🏆 전체 랭킹</h2>
+    <div id="ranking"></div>
+</div>
+
+<script>
+let currentSchool = null;
+
+const schoolNames = {
+    uoft: "University of Toronto",
+    ubc: "University of British Columbia",
+    mcgill: "McGill University",
+    ualberta: "University of Alberta"
+};
+
+// 점수 초기화
+if (!localStorage.getItem("scores")) {
+    localStorage.setItem("scores", JSON.stringify({
+        uoft: 0,
+        ubc: 0,
+        mcgill: 0,
+        ualberta: 0
+    }));
+}
+
+function getScores() {
+    return JSON.parse(localStorage.getItem("scores"));
+}
+
+function saveScores(scores) {
+    localStorage.setItem("scores", JSON.stringify(scores));
+}
+
+function login(school) {
+    currentSchool = school;
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("gameScreen").classList.remove("hidden");
+    document.getElementById("welcome").innerText =
+        schoolNames[school] + " 학생으로 로그인!";
+    updateMyScore();
+}
+
+function logout() {
+    currentSchool = null;
+    document.getElementById("loginScreen").classList.remove("hidden");
+    document.getElementById("gameScreen").classList.add("hidden");
+}
+
+function addPoint() {
+    let scores = getScores();
+    scores[currentSchool]++;
+    saveScores(scores);
+    updateMyScore();
+    updateRanking();
+}
+
+function updateMyScore() {
+    let scores = getScores();
+    document.getElementById("myScore").innerText = scores[currentSchool];
+}
+
+function updateRanking() {
+    let scores = getScores();
+    let rankingDiv = document.getElementById("ranking");
+    rankingDiv.innerHTML = "";
+
+    let sorted = Object.entries(scores)
+        .sort((a, b) => b[1] - a[1]);
+
+    sorted.forEach((item, index) => {
+        let div = document.createElement("div");
+        div.className = "rank";
+        div.innerText =
+            (index + 1) + "위 - " +
+            schoolNames[item[0]] +
+            " : " + item[1] + "점";
+        rankingDiv.appendChild(div);
+    });
+}
+
+updateRanking();
+</script>
+
+</body>
+</html>
