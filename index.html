@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>캐나다 학교 대항전</title>
+<title>Canadian Schools Competition</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -38,104 +38,121 @@ button:hover {
 </head>
 <body>
 
-<h1>🇨🇦 캐나다 학교 대항전 🇨🇦</h1>
+<h1>🇨🇦 Canadian Schools Competition 🇨🇦</h1>
 
 <div id="loginScreen" class="container">
-    <h2>학교 선택 로그인</h2>
-    <button onclick="login('uoft')">University of Toronto</button>
-    <button onclick="login('ubc')">University of British Columbia</button>
-    <button onclick="login('mcgill')">McGill University</button>
-    <button onclick="login('ualberta')">University of Alberta</button>
+    <h2>School Login</h2>
+    <button onclick="login('cb')">chaffey-burke</button>
+    <button onclick="login('m')">Marlborough Elementary School</button>
+    <button onclick="login('ei')">École Inman Elementary School</button>
+    <button onclick="login('gdb')">Graham D. Bruce Elementary School</button>
 </div>
 
 <div id="gameScreen" class="container hidden">
     <h2 id="welcome"></h2>
-    <button onclick="addPoint()">🔥 우리 학교 응원하기!</button>
-    <h3>현재 학교 점수: <span id="myScore">0</span></h3>
-    <button onclick="logout()">로그아웃</button>
+    <button onclick="addPoint()">🔥 Support our school!</button>
+    <h3>Current School Score: <span id="myScore">0</span></h3>
+    <button onclick="logout()">Log out</button>
 </div>
 
 <div id="dashboard" class="container">
-    <h2>🏆 전체 랭킹</h2>
+    <h2>🏆 Overall Ranking</h2>
     <div id="ranking"></div>
 </div>
 
 <script>
-let currentSchool = null;
+    let currentSchool = null;
 
-const schoolNames = {
-    uoft: "University of Toronto",
-    ubc: "University of British Columbia",
-    mcgill: "McGill University",
-    ualberta: "University of Alberta"
-};
+    const schoolNames = {
+        cb: "chaffey-burke",
+        m: "Marlborough Elementary School",
+        ei: "École Inman Elementary School",
+        gdb: "Graham D. Bruce Elementary School"
+    };
 
-// 점수 초기화
-if (!localStorage.getItem("scores")) {
-    localStorage.setItem("scores", JSON.stringify({
-        uoft: 0,
-        ubc: 0,
-        mcgill: 0,
-        ualberta: 0
-    }));
-}
+    // 점수 초기화
+    if (!localStorage.getItem("scores")) {
+        localStorage.setItem("scores", JSON.stringify({
+            uoft: 0,
+            ubc: 0,
+            mcgill: 0,
+            ualberta: 0
+        }));
+    }
 
-function getScores() {
-    return JSON.parse(localStorage.getItem("scores"));
-}
+    function getScores() {
+        return JSON.parse(localStorage.getItem("scores"));
+    }
 
-function saveScores(scores) {
-    localStorage.setItem("scores", JSON.stringify(scores));
-}
+    function saveScores(scores) {
+        localStorage.setItem("scores", JSON.stringify(scores));
+    }
 
-function login(school) {
-    currentSchool = school;
-    document.getElementById("loginScreen").classList.add("hidden");
-    document.getElementById("gameScreen").classList.remove("hidden");
-    document.getElementById("welcome").innerText =
-        schoolNames[school] + " 학생으로 로그인!";
-    updateMyScore();
-}
+    function login(school) {
+        currentSchool = school;
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("gameScreen").classList.remove("hidden");
+        document.getElementById("welcome").innerText =
+            schoolNames[school];
+        updateMyScore();
+    }
 
-function logout() {
-    currentSchool = null;
-    document.getElementById("loginScreen").classList.remove("hidden");
-    document.getElementById("gameScreen").classList.add("hidden");
-}
+    function logout() {
+        currentSchool = null;
+        document.getElementById("loginScreen").classList.remove("hidden");
+        document.getElementById("gameScreen").classList.add("hidden");
+    }
 
-function addPoint() {
-    let scores = getScores();
-    scores[currentSchool]++;
-    saveScores(scores);
-    updateMyScore();
+    function addPoint() {
+        let scores = getScores();
+        scores[currentSchool]++;
+        saveScores(scores);
+        updateMyScore();
+        updateRanking();
+    }
+
+    function updateMyScore() {
+        let scores = getScores();
+        document.getElementById("myScore").innerText = scores[currentSchool];
+    }
+
+    function updateRanking() {
+        let scores = getScores();
+        let rankingDiv = document.getElementById("ranking");
+        rankingDiv.innerHTML = "";
+
+        let sorted = Object.entries(scores)
+            .sort((a, b) => b[1] - a[1]);
+
+        sorted.forEach((item, index) => {
+            let div = document.createElement("div");
+            div.className = "rank";
+            if (index+1 == 1){
+                div.innerText =
+                    (index + 1) + "st - " +
+                    schoolNames[item[0]] +
+                    " : " + item[1] + "points";
+            } elif (index+1==2);{
+                div.innerText =
+                    (index + 1) + "nd - " +
+                    schoolNames[item[0]] +
+                    " : " + item[1] + "points";
+            } elif (index+1==3);{
+                div.innerText =
+                    (index + 1) + "rd - " +
+                    schoolNames[item[0]] +
+                    " : " + item[1] + "points";
+            } elif (index>3); {
+                div.innerText =
+                    (index + 1) + "th - " +
+                    schoolNames[item[0]] +
+                    " : " + item[1] + "points";
+            }
+            rankingDiv.appendChild(div);
+        });
+    }
+
     updateRanking();
-}
-
-function updateMyScore() {
-    let scores = getScores();
-    document.getElementById("myScore").innerText = scores[currentSchool];
-}
-
-function updateRanking() {
-    let scores = getScores();
-    let rankingDiv = document.getElementById("ranking");
-    rankingDiv.innerHTML = "";
-
-    let sorted = Object.entries(scores)
-        .sort((a, b) => b[1] - a[1]);
-
-    sorted.forEach((item, index) => {
-        let div = document.createElement("div");
-        div.className = "rank";
-        div.innerText =
-            (index + 1) + "위 - " +
-            schoolNames[item[0]] +
-            " : " + item[1] + "점";
-        rankingDiv.appendChild(div);
-    });
-}
-
-updateRanking();
 </script>
 
 </body>
